@@ -98,6 +98,12 @@
                 <enabled>false</enabled>
             </snapshots>
         </repository>
+
+        <!-- LockLogin repository -->
+        <repository>
+            <id>locklogin-api</id>
+            <url>https://github.com/KarmaConfigs/Repos/raw/master/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -198,6 +204,20 @@
             <scope>provided</scope>
             <optional>true</optional>
             <!--These artifacts produce conflicts on downloading-->
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>ml.karmaconfigs</groupId>
+            <artifactId>LockLogin</artifactId>
+            <version>1.0.1.2</version>
+            <scope>provided</scope>
+            <optional>true</optional>
             <exclusions>
                 <exclusion>
                     <groupId>*</groupId>

@@ -6,6 +6,8 @@ import com.github.games647.fastlogin.bukkit.hook.CrazyLoginHook;
 import com.github.games647.fastlogin.bukkit.hook.LogItHook;
 import com.github.games647.fastlogin.bukkit.hook.LoginSecurityHook;
 import com.github.games647.fastlogin.bukkit.hook.UltraAuthHook;
+import com.github.games647.fastlogin.bukkit.hook.locklogin.FastLoginModule;
+import com.github.games647.fastlogin.bukkit.hook.locklogin.LockLoginHook;
 import com.github.games647.fastlogin.bukkit.hook.xAuthHook;
 import com.github.games647.fastlogin.bukkit.hook.SodionAuthHook;
 import com.github.games647.fastlogin.core.hooks.AuthPlugin;
@@ -14,6 +16,8 @@ import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.List;
 
+import ml.karmaconfigs.lockloginmodules.spigot.Module;
+import ml.karmaconfigs.lockloginmodules.spigot.ModuleLoader;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
@@ -72,12 +76,24 @@ public class DelayedAuthHook implements Runnable {
             @SuppressWarnings("unchecked")
             List<Class<? extends AuthPlugin<Player>>> hooks = Arrays.asList(AuthMeHook.class,
                     CrazyLoginHook.class, LogItHook.class, LoginSecurityHook.class,
-                    SodionAuthHook.class, UltraAuthHook.class, xAuthHook.class);
+                    SodionAuthHook.class, UltraAuthHook.class, xAuthHook.class, LockLoginHook.class);
 
             for (Class<? extends AuthPlugin<Player>> clazz : hooks) {
-                String pluginName = clazz.getSimpleName().replace("Hook", "");
+                String pluginName = clazz.getSimpleName().substring(0, clazz.getSimpleName().length() - 4);
                 //uses only member classes which uses AuthPlugin interface (skip interfaces)
                 if (Bukkit.getPluginManager().isPluginEnabled(pluginName)) {
+                    if (pluginName.equals("LockLogin")) {
+                        Module module = new FastLoginModule();
+                        ModuleLoader loader = new ModuleLoader(module);
+
+                        if (!ModuleLoader.manager.isLoaded(module)) {
+                            try {
+                                loader.inject();
+                            } catch (Throwable e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
                     //check only for enabled plugins. A single plugin could be disabled by plugin managers
                     return newInstance(clazz);
                 }
